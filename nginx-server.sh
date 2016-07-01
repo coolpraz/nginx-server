@@ -45,93 +45,93 @@ do
     case $opt in
         "PHP")
 			block="server {
-			    listen $defaultPort;
-			    listen $sslPort ssl;
-			    server_name $domain;
-			    root \"$root\";
+    listen $defaultPort;
+    listen $sslPort ssl;
+    server_name $domain;
+    root \"$root\";
 
-			    index index.html index.htm index.php;
+    index index.html index.htm index.php;
 
-			    charset utf-8;
+    charset utf-8;
 
-			    location / {
-			        try_files \$uri \$uri/ /index.php?\$query_string;
-			    }
+    location / {
+        try_files \$uri \$uri/ /index.php?\$query_string;
+    }
 
-			    location = /favicon.ico { access_log off; log_not_found off; }
-			    location = /robots.txt  { access_log off; log_not_found off; }
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
 
-			    access_log off;
-			    error_log  /var/log/nginx/$domain-error.log error;
+    access_log off;
+    error_log  /var/log/nginx/$domain-error.log error;
 
-			    sendfile off;
+    sendfile off;
 
-			    client_max_body_size 100m;
+    client_max_body_size 100m;
 
-			    location ~ \.php$ {
-			        fastcgi_split_path_info ^(.+\.php)(/.+)$;
-			        fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
-			        fastcgi_index index.php;
-			        include fastcgi_params;
-			        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
 
-			        fastcgi_intercept_errors off;
-			        fastcgi_buffer_size 16k;
-			        fastcgi_buffers 4 16k;
-			        fastcgi_connect_timeout 300;
-			        fastcgi_send_timeout 300;
-			        fastcgi_read_timeout 300;
-			    }
+        fastcgi_intercept_errors off;
+        fastcgi_buffer_size 16k;
+        fastcgi_buffers 4 16k;
+        fastcgi_connect_timeout 300;
+        fastcgi_send_timeout 300;
+        fastcgi_read_timeout 300;
+    }
 
-			    location ~ /\.ht {
-			        deny all;
-			    }
+    location ~ /\.ht {
+        deny all;
+    }
 
-			    ssl_certificate     /etc/nginx/ssl/$domain.crt;
-			    ssl_certificate_key /etc/nginx/ssl/$domain.key;
-			}
-			"
+    ssl_certificate     /etc/nginx/ssl/$domain.crt;
+    ssl_certificate_key /etc/nginx/ssl/$domain.key;
+}
+"
 			break
             ;;
         "HHVM")
 			block="server {
-				listen $defaultPort;
-			    listen $sslPort ssl;
-			    server_name $domain;
-			    root \"$root\";
+	listen $defaultPort;
+    listen $sslPort ssl;
+    server_name $domain;
+    root \"$root\";
 
-			    index index.html index.htm index.php;
+    index index.html index.htm index.php;
 
-			    charset utf-8;
+    charset utf-8;
 
-			    location / {
-			        try_files \$uri \$uri/ /index.php?\$query_string;
-			    }
+    location / {
+        try_files \$uri \$uri/ /index.php?\$query_string;
+    }
 
-			    location = /favicon.ico { access_log off; log_not_found off; }
-			    location = /robots.txt  { access_log off; log_not_found off; }
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
 
-			    access_log off;
-			    error_log  /var/log/nginx/$domain-error.log error;
+    access_log off;
+    error_log  /var/log/nginx/$domain-error.log error;
 
-			    sendfile off;
+    sendfile off;
 
-			    location ~ \.php$ {
-			        fastcgi_split_path_info ^(.+\.php)(/.+)$;
-			        fastcgi_pass 127.0.0.1:9000;
-			        fastcgi_index index.php;
-			        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
-			        include fastcgi_params;
-			    }
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        include fastcgi_params;
+    }
 
-			    location ~ /\.ht {
-			        deny all;
-			    }
+    location ~ /\.ht {
+        deny all;
+    }
 
-			    ssl_certificate     /etc/nginx/ssl/$domain.crt;
-			    ssl_certificate_key /etc/nginx/ssl/$domain.key;
-			}
-			"
+    ssl_certificate     /etc/nginx/ssl/$domain.crt;
+    ssl_certificate_key /etc/nginx/ssl/$domain.key;
+}
+"
             break
             ;;
         *) echo invalid option;;
