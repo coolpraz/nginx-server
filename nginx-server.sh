@@ -9,15 +9,15 @@ read -p "Enter HTTP port number [80]: " defaultPort
 read -p "Enter HTTPS port number [443]: " sslPort
 
 domain=$domainName
-root=$serverRoot
+rootpath=$serverRoot
 defaultPort=${defaultPort:-80}
 sslPort=${sslPort:-443}
 
 # Create the Document Root directory
-if [ ! -d $root ]; then
-	mkdir -p $root 2>/dev/null
+if [ ! -d $rootpath ]; then
+	mkdir -p $rootpath 2>/dev/null
 	# Assign ownership to your regular user account
-	chown -R $USER:$USER $root 2>/dev/null
+	chown -R $USER:$USER $rootpath 2>/dev/null
 fi
 
 # Creating the SSL directory
@@ -48,7 +48,7 @@ do
     listen $defaultPort;
     listen $sslPort ssl;
     server_name $domain;
-    root \"$root\";
+    root \"$rootpath\";
 
     index index.html index.htm index.php;
 
@@ -98,7 +98,7 @@ do
 	listen $defaultPort;
     listen $sslPort ssl;
     server_name $domain;
-    root \"$root\";
+    root \"$rootpath\";
 
     index index.html index.htm index.php;
 
