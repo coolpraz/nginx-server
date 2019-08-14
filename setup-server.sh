@@ -10,8 +10,41 @@ usrname=${name:-websrv}
 db_user=${mysql_user:-homestead}
 db_pass=${mysql_pass:-secret}
 
-adduser $usrname
+adduser $usrname --gecos ""
 usermod -aG sudo $usrname
+
+clear
+PS3='Please choose the service provider: '
+options=("AWS" "Other")
+select opt in "${options[@]}"
+do
+  case $opt in
+    "AWS")
+      mkdir /home/$usrname/.ssh 2>/dev/null
+      chown -R $usrname:$usrname /home/$usrname/.ssh
+      chmod 700 /home/$usrname/.ssh
+      read -p "Enter AWS default factory default username [ubuntu]: " aws_usrname
+      aws_usr=${aws_usrname:-ubuntu}
+      cp /home/$aws_usr/.ssh/authorized_keys /home/$usrname/.ssh/
+      chown $usrname:$usrname /home/$usrname/.ssh/authorized_keys
+    break
+    ;;
+    "Other")
+      echo "Setting Up SSH key based Authentication"
+      echo "-------------------------------------------------"
+      echo	"On your localhost type the following commands"
+      echo	"$ ssh-keygen"
+      echo	"$ ssh-copy-id <username>@<remote_host>"
+      echo "On your remote host type the following commands"
+      echo "Goto main menu to disable the password based SSH Authentication"
+      echo ""
+      echo "Note: Remember only disable password based authentication after following above steps"
+      pause
+    break
+    ;;
+    *) echo invalid option;;
+  esac
+done
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -497,4 +530,4 @@ truncate -s 0 /etc/machine-id
 /sbin/swapon /var/swap.1
 
 read -p "Logout and login as $usrname and create your first site" fackEnterKey
-exit
+return

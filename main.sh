@@ -29,6 +29,10 @@ one(){
 two(){
 	source create-site.sh
 }
+
+disable_passwd(){
+	source disable_ssh_passwd.sh
+}
  
 # function to display menus
 show_menus() {
@@ -40,7 +44,8 @@ show_menus() {
 	echo "2. Create Site"
 	echo "3. Edit Site"
 	echo "4. Delete Site"
-	echo "5. Exit"
+	echo "5. Disable Password based authentication to server"
+	echo "6. Exit"
 }
 # read input from the keyboard and take a action
 # invoke the one() when the user select 1 from the menu option.
@@ -52,6 +57,7 @@ read_options(){
 	case $choice in
 		1) one ;;
 		2) two ;;
+		5) disable_passwd ;;
 		3) exit 0;;
 		*) echo -e "${RED}Error...${STD}" && sleep 2
 	esac
