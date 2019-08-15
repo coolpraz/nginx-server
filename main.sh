@@ -17,8 +17,20 @@ STD='\033[0;0;39m'
 # ----------------------------------
 # Step #2: User defined function
 # ----------------------------------
-pause(){
-  read -p "Press [Enter] key to continue..." fackEnterKey
+
+function pause(){
+	local message="$@"
+	[ -z $message ] && message="Press [Enter] key to continue..."
+	read -p "$message" readEnterKey
+}
+
+# Purpose - Display header message
+# $1 - message
+function write_header(){
+	local h="$@"
+	echo "---------------------------------------------------------------"
+	echo "     ${h}"
+	echo "---------------------------------------------------------------"
 }
 
 one(){
@@ -36,10 +48,7 @@ disable_passwd(){
  
 # function to display menus
 show_menus() {
-	clear
-	echo "~~~~~~~~~~~~~~~~~~~~~"	
-	echo " M A I N - M E N U"
-	echo "~~~~~~~~~~~~~~~~~~~~~"
+	write_header " M A I N - M E N U "
 	echo "1. Setup Server"
 	echo "2. Create Site"
 	echo "3. Edit Site"
@@ -73,7 +82,7 @@ trap '' SIGINT SIGQUIT SIGTSTP
 # ------------------------------------
 while true
 do
- 
+	clear
 	show_menus
 	read_options
 done

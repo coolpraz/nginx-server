@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+clear
 read -p "Enter your domain name and press [ENTER]: " domainName
 read -p "Enter your root path(Absolute path) and press [ENTER]: " serverRoot
 read -p "Enter HTTP port number [80]: " defaultPort
@@ -105,3 +105,6 @@ sudo service php7.3-fpm restart
 sudo service php7.1-fpm restart
 sudo service php7.0-fpm restart
 sudo service php5.6-fpm restart
+
+pause
+return
