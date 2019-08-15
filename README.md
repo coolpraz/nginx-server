@@ -1,6 +1,6 @@
 # nginx-server
 
-Interactive Bash Script for creating Nginx Server based upon Laravel Homestead (https://github.com/laravel/homestead).
+Interactive Bash Script for creating Nginx Server based upon [Laravel Homestead](https://github.com/laravel/homestead).
 
 # Installation
 
