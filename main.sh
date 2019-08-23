@@ -5,6 +5,8 @@ if [ "$EUID" != 0 ]
   exit
 fi
 
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
 # A menu driven shell script sample template 
 ## ----------------------------------
 # Step #1: Define variables
@@ -34,16 +36,20 @@ function write_header(){
 }
 
 one(){
-	source setup-server.sh
+	source $DIR/setup-server.sh
 }
  
 # do something in two()
 two(){
-	source create-site.sh
+	source $DIR/create-site.sh
 }
 
 disable_passwd(){
-	source disable_ssh_passwd.sh
+	source $DIR/disable_ssh_passwd.sh
+}
+
+del_site(){
+	source $DIR/del_site.sh
 }
  
 # function to display menus
@@ -66,6 +72,7 @@ read_options(){
 	case $choice in
 		1) one ;;
 		2) two ;;
+		4) del_site ;;
 		5) disable_passwd ;;
 		3) exit 0;;
 		*) echo -e "${RED}Error...${STD}" && sleep 2

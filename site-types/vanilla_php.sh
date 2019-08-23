@@ -6,7 +6,7 @@ block="server {
     listen $defaultPort;
     listen $sslPort ssl http2;
     server_name .$domain;
-    root \"$rootpath/public\";
+    root \"$rootpath\";
 
     index index.html index.htm index.php;
 
@@ -53,6 +53,12 @@ block="server {
 sudo echo "$block" > "/etc/nginx/sites-available/$domain"
 sudo ln -fs "/etc/nginx/sites-available/$domain" "/etc/nginx/sites-enabled/$domain"
 
-source $DIR/site-types/post.sh
+sudo service nginx restart
+sudo service php7.2-fpm restart
+sudo service php7.3-fpm restart
+sudo service php7.1-fpm restart
+sudo service php7.0-fpm restart
+sudo service php5.6-fpm restart
 
+pause
 return
