@@ -13,7 +13,7 @@ db_pass=${mysql_pass:-secret}
 adduser $usrname --gecos ""
 usermod -aG sudo $usrname
 
-clear
+echo "Setting Up SSH"
 PS3='Please choose the service provider: '
 options=("AWS" "Other")
 select opt in "${options[@]}"

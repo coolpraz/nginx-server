@@ -9,11 +9,25 @@
 
 # echo ${cuser}
 
-service=apache2
+# read -p "Enter your site domain name to delete and press [ENTER]: " domainName
+# dir_name=${domainName%.*}
+# read -p "Enter your Directory name and press [$dir_name]: " serverRoot
 
-if (( $(ps -ef | grep -v grep | grep $service | wc -l) > 0 ))
-then
-echo "$service is running!!!"
-else
-echo "$service is not running!!!"
-fi
+# domain=$domainName
+
+# PATH_SITE="/etc/apache2/sites-available"
+# PATH_EN="/etc/apache2/sites-enabled"
+
+# arr=(
+# 		"${PATH_SITE}/${domain}.conf"
+# 		"${PATH_EN}/${domain}.conf"
+# 	)
+
+# for i in "${arr[@]}"
+# do
+#     # access each element  
+#     # as $i 
+#     echo $i 
+# done
+
+sudo nginx -T | grep "server_name " | sed 's/.*server_name .\(.*\);/\1/' | sed 's/ /\n/'
