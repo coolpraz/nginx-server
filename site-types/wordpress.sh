@@ -1,53 +1,16 @@
 #!/usr/bin/env bash
 
-declare -A params=$6       # Create an associative array
-declare -A headers=${9}    # Create an associative array
-declare -A rewrites=${10}  # Create an associative array
-paramsTXT=""
-if [ -n "$6" ]; then
-   for element in "${!params[@]}"
-   do
-      paramsTXT="${paramsTXT}
-      fastcgi_param ${element} ${params[$element]};"
-   done
-fi
-headersTXT=""
-if [ -n "${9}" ]; then
-   for element in "${!headers[@]}"
-   do
-      headersTXT="${headersTXT}
-      add_header ${element} ${headers[$element]};"
-   done
-fi
-rewritesTXT=""
-if [ -n "${10}" ]; then
-   for element in "${!rewrites[@]}"
-   do
-      rewritesTXT="${rewritesTXT}
-      location ~ ${element} { if (!-f \$request_filename) { return 301 ${rewrites[$element]}; } }"
-   done
-fi
-
-if [ "$7" = "true" ]
-then configureXhgui="
-location /xhgui {
-        try_files \$uri \$uri/ /xhgui/index.php?\$args;
-}
-"
-else configureXhgui=""
-fi
+source $DIR/site-types/base.sh
 
 block="server {
-    listen ${3:-80};
-    listen ${4:-443} ssl http2;
-    server_name .$1;
-    root \"$2\";
+    listen $defaultPort;
+    listen $sslPort ssl http2;
+    server_name .$domain;
+    root \"$rootpath\";
 
     index index.php index.html index.htm;
 
     charset utf-8;
-
-    $rewritesTXT
 
     location = /favicon.ico { access_log off; log_not_found off; }
     location = /robots.txt  { allow all; access_log off; log_not_found off; }
@@ -65,7 +28,7 @@ block="server {
         rewrite /wp-admin$ \$scheme://\$host\$uri/ permanent;
 
         # WordPress in a subdirectory rewrite rules
-        rewrite ^/([_0-9a-zA-Z-]+/)?(wp-.*|xmlrpc.php) /wp/\$2 break;
+        rewrite ^/([_0-9a-zA-Z-]+/)?(wp-.*|xmlrpc.php) /wp/\$rootpath break;
     }
 
     location ~ \.php$ {
@@ -73,16 +36,14 @@ block="server {
         include fastcgi_params;
         fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
-        fastcgi_pass unix:/var/run/php/php$5-fpm.sock;
+        fastcgi_pass unix:/var/run/php/php$phpVer-fpm.sock;
         fastcgi_intercept_errors on;
         fastcgi_buffers 16 16k;
         fastcgi_buffer_size 32k;
     }
 
-    $configureXhgui
-
     access_log off;
-    error_log  /var/log/nginx/$1-error.log error;
+    error_log  /var/log/nginx/$domain-error.log error;
 
     sendfile off;
 
@@ -92,13 +53,13 @@ block="server {
         deny all;
     }
 
-    ssl_certificate     /etc/nginx/ssl/$1.crt;
-    ssl_certificate_key /etc/nginx/ssl/$1.key;
+    ssl_certificate     /etc/nginx/ssl/$domain.crt;
+    ssl_certificate_key /etc/nginx/ssl/$domain.key;
 }
 "
 
-echo "$block" > "/etc/nginx/sites-available/$1"
-ln -fs "/etc/nginx/sites-available/$1" "/etc/nginx/sites-enabled/$1"
+echo "$block" > "/etc/nginx/sites-available/$domain"
+ln -fs "/etc/nginx/sites-available/$domain" "/etc/nginx/sites-enabled/$domain"
 
 
 # Additional constants to define in wp-config.php
@@ -107,7 +68,7 @@ wpConfigReplaceStr="\$table_prefix = 'wp_';\\n\
 \\n\
 // Define the default HOME/SITEURL constants and set them to our root domain\\n\
 if ( ! defined( 'WP_HOME' ) ) {\\n\
-	define( 'WP_HOME', 'http://$1' );\\n\
+	define( 'WP_HOME', 'http://$domain' );\\n\
 }\\n\
 if ( ! defined( 'WP_SITEURL' ) ) {\\n\
 	define( 'WP_SITEURL', WP_HOME );\\n\
@@ -128,21 +89,31 @@ then
     wp cli update --stable --yes
 fi
 
+read -p "Enter DB Username [homestead]: " mysql_user
+read -p "Enter DB Password [secret]: " mysql_pass
+
+db_user=${mysql_user:-homestead}
+db_pass=${mysql_pass:-secret}
+
 # If WP is not installed then download it
-if [ -d "$2/wp" ]
+if [ -d "$rootpath/wp" ]
 then
     echo "WordPress is already installed."
 else
-    sudo -i -u vagrant -- mkdir "$2/wp"
-    sudo -i -u vagrant -- wp core download --path="$2/wp" --version=latest
-    sudo -i -u vagrant -- cp -R $2/wp/wp-content $2/wp-content
-    sudo -i -u vagrant -- cp $2/wp/index.php $2/index.php
-    sudo -i -u vagrant -- sed -i "s|/wp-blog-header|/wp/wp-blog-header|g" $2/index.php
-    sudo -i -u vagrant -- echo "path: $2/wp/" > $2/wp-cli.yml
-    sudo -i -u vagrant -- wp config create --path=$2/wp/ --dbname=${1/./_} --dbuser=homestead --dbpass=secret --dbcollate=utf8_general_ci
-    sudo -i -u vagrant -- mv $2/wp/wp-config.php $2/wp-config.php
-    sudo -i -u vagrant -- sed -i 's|'"$wpConfigSearchStr"'|'"$wpConfigReplaceStr"'|g' $2/wp-config.php
-    sudo -i -u vagrant -- sed -i "s|define( 'ABSPATH', dirname( __FILE__ ) . '/' );|define( 'ABSPATH', __DIR__ . '/wp/' );|g" $2/wp-config.php
+    sudo -i -u $SUDO_USER -- mkdir "$rootpath/wp"
+    sudo -i -u $SUDO_USER -- wp core download --path="$rootpath/wp" --version=latest
+    sudo -i -u $SUDO_USER -- cp -R $rootpath/wp/wp-content $rootpath/wp-content
+    sudo -i -u $SUDO_USER -- cp $rootpath/wp/index.php $rootpath/index.php
+    sudo -i -u $SUDO_USER -- sed -i "s|/wp-blog-header|/wp/wp-blog-header|g" $rootpath/index.php
+    sudo -i -u $SUDO_USER -- echo "path: $rootpath/wp/" > $rootpath/wp-cli.yml
+    sudo -i -u $SUDO_USER -- wp config create --path=$rootpath/wp/ --dbname=${domain/./_} --dbuser=$db_user --dbpass=$db_pass --dbcollate=utf8_general_ci
+    sudo -i -u $SUDO_USER -- mv $rootpath/wp/wp-config.php $rootpath/wp-config.php
+    sudo -i -u $SUDO_USER -- sed -i 's|'"$wpConfigSearchStr"'|'"$wpConfigReplaceStr"'|g' $rootpath/wp-config.php
+    sudo -i -u $SUDO_USER -- sed -i "s|define( 'ABSPATH', dirname( __FILE__ ) . '/' );|define( 'ABSPATH', __DIR__ . '/wp/' );|g" $rootpath/wp-config.php
 
     echo "WordPress has been downloaded and config file has been generated, install it manually."
 fi
+
+source $DIR/site-types/post.sh
+
+return
