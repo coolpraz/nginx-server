@@ -28,7 +28,7 @@ block="server {
         rewrite /wp-admin$ \$scheme://\$host\$uri/ permanent;
 
         # WordPress in a subdirectory rewrite rules
-        rewrite ^/([_0-9a-zA-Z-]+/)?(wp-.*|xmlrpc.php) /wp/\$rootpath break;
+        rewrite ^/([_0-9a-zA-Z-]+/)?(wp-.*|xmlrpc.php) /wp/\$2 break;
     }
 
     location ~ \.php$ {
